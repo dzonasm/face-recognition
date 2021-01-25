@@ -1,7 +1,5 @@
 import './App.css';
 import React, { useState } from 'react'
-import Clarifai from 'clarifai'
-
 import Navigation from './components/Navigation/Navigation.component'
 import Logo from './components/Logo/Logo.component'
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm.component'
@@ -11,17 +9,50 @@ import FaceRecognition from './components/FaceRecognition/FaceRecognition.compon
 import Signin from './components/Signin/Signin.component'
 import Register from './components/Register/Register.component'
 
-function App() {
+
+const App = () => {
 
   const [input, setInput] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [box, setBox] = useState({})
   const [route, setRoute] = useState('signin')
   const [isSignedIn, setIsSignedIn] = useState(false)
+  const [user, setUser] = useState({
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joined: ''
+  })
 
-  const clarifai = new Clarifai.App({
-    apiKey: '7654400b593d4ae0bffc10b35f5b5242'
-  });
+  const resetState = () => {
+    setInput('');
+    setImageUrl('');
+    setBox({});
+    setRoute('signin');
+    setIsSignedIn(false);
+    setUser({
+      id: '',
+      name: '',
+      email: '',
+      entries: 0,
+      joined: ''
+    })
+  }
+
+  const loadUser = (data) => {
+    console.log(data)
+    const { id, name, email, entries, joined } = data
+    setUser({
+      id,
+      name,
+      email,
+      entries,
+      joined
+    })
+  }
+
+
 
 
   const onInputChange = (e) => {
@@ -48,17 +79,36 @@ function App() {
 
   const onSubmit = () => {
     setImageUrl(input);
-    console.log(input);
-    clarifai.models
-      .predict(
-        Clarifai.FACE_DETECT_MODEL, `${input}`)
-      .then((response) => displayFaceBox(calcFaceLocation(response)))
+    fetch('https://shielded-cove-44100.herokuapp.com/imageUrl', {
+      method: "post",
+      headers: { 'Content-type': 'application/json' },
+      body: JSON.stringify({
+        input: input
+      })
+    }).then(response => response.json())
+      .then((response) => {
+        if (response) {
+          fetch('https://shielded-cove-44100.herokuapp.com/image', {
+            method: "put",
+            headers: { 'Content-type': 'application/json' },
+            body: JSON.stringify({
+              id: user.id
+            })
+          })
+            .then(res => res.json())
+            .then(count => {
+              setUser({ ...user, entries: count })
+            })
+            .catch(err => console.log(err))
+        }
+        displayFaceBox(calcFaceLocation(response))
+      })
       .catch(err => console.log(err));
   }
 
   const onRouteChange = (route) => {
     (route === 'signout' ?
-      setIsSignedIn(false) :
+      resetState() :
       setIsSignedIn(true));
     setRoute(route)
   }
@@ -70,15 +120,15 @@ function App() {
       {route === 'home' ?
         <div>
           <Logo />
-          <Rank />
+          <Rank name={user.name} entries={user.entries} />
           <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit} />
           <FaceRecognition box={box} imageUrl={imageUrl} />
         </div>
         : (
           route === 'signin' ?
-            <Signin onRouteChange={onRouteChange} />
+            <Signin loadUser={loadUser} onRouteChange={onRouteChange} />
             :
-            <Register onRouteChange={onRouteChange} />
+            <Register loadUser={loadUser} onRouteChange={onRouteChange} />
         )
       }
     </div>
