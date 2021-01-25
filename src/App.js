@@ -14,7 +14,7 @@ const App = () => {
 
   const [input, setInput] = useState('')
   const [imageUrl, setImageUrl] = useState('')
-  const [box, setBox] = useState({})
+  const [boxes, setBoxes] = useState([])
   const [route, setRoute] = useState('signin')
   const [isSignedIn, setIsSignedIn] = useState(false)
   const [user, setUser] = useState({
@@ -28,7 +28,7 @@ const App = () => {
   const resetState = () => {
     setInput('');
     setImageUrl('');
-    setBox({});
+    setBoxes([]);
     setRoute('signin');
     setIsSignedIn(false);
     setUser({
@@ -41,7 +41,6 @@ const App = () => {
   }
 
   const loadUser = (data) => {
-    console.log(data)
     const { id, name, email, entries, joined } = data
     setUser({
       id,
@@ -60,21 +59,24 @@ const App = () => {
   }
 
   const calcFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const faceBoxesArr = data.outputs.map(output => output.data.regions.map(region => { return region.region_info.bounding_box }))
     const image = document.getElementById('inputimage');
     const width = Number(image.width);
     const height = Number(image.height);
-    console.log(width, height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
+    const boxes = faceBoxesArr[0].map(faceBox => {
+      return {
+        leftCol: faceBox.left_col * width,
+        topRow: faceBox.top_row * height,
+        rightCol: width - (faceBox.right_col * width),
+        bottomRow: height - (faceBox.bottom_row * height)
+      }
     }
+    )
+    return boxes;
   }
 
-  const displayFaceBox = (box) => {
-    setBox(box)
+  const displayFaceBox = (boxes) => {
+    setBoxes(boxes)
   }
 
   const onSubmit = () => {
@@ -122,7 +124,7 @@ const App = () => {
           <Logo />
           <Rank name={user.name} entries={user.entries} />
           <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit} />
-          <FaceRecognition box={box} imageUrl={imageUrl} />
+          <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
         </div>
         : (
           route === 'signin' ?
