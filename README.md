@@ -1,14 +1,16 @@
-## Smart brain
+# Smart brain
 
 A face recognition application using the CLARIFAI API with user authorization, registration, it's own Express server and React front end.
 
-# Live site
+## Live site
 
 https://prjct-smart-brain.herokuapp.com/
 
-# Running the code
+## Running the code
 
 Clone the repository into your computer, install all the dependencies with "npm i", run "npm run-script start-dev".
+
+### The server files are located in https://github.com/dzonasm/smart-brain-api
 
 # Technologies used
 
