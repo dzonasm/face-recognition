@@ -61,12 +61,12 @@ const Signin = ({ onRouteChange, loadUser }) => {
                                 id="password" />
                         </div>
                     </fieldset>
-                    <div className="">
-                        <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
+                    <div>
+                        <button className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
                             type="submit"
 
                             onClick={onSubmitSignin}
-                        />
+                        >Sign In</button>
 
                     </div>
                     <div className="lh-copy mt3">

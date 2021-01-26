@@ -69,11 +69,11 @@ const Register = ({ onRouteChange, loadUser }) => {
                                 onChange={onPasswordChange} />
                         </div>
                     </fieldset>
-                    <div className="">
-                        <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
+                    <div>
+                        <button className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
                             type="submit"
                             onClick={onSubmitRgister}
-                        />
+                        >Register</button>
 
                     </div>
 
